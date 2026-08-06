@@ -44,4 +44,28 @@ public class CommentControllerController : ControllerBase
         return Ok(response);
     }
 
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] int id)
+    {
+        var response = await _commentRepository.DeleteAsync(id);
+        if (!response)
+        {
+            return NotFound("Invalid comment");
+        }
+
+        return Ok("Comment deleted successfully.");
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateAsync(UpdateCoomentDTO updateCoomentDTO)
+    {
+        var response = await _commentRepository.UpdateAsync(updateCoomentDTO);
+        if (response is null)
+        {
+            return NotFound("Invalid comment");
+        }
+
+        return Ok("Comment updated successfully.");
+    }
 }

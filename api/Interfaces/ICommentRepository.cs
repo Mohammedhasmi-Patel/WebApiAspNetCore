@@ -7,4 +7,6 @@ public interface ICommentRepository
 {
     Task<List<Comment>> GetAllAsync();
     Task<Comment> CreateAsync(Comment comment);
+    Task<bool> DeleteAsync(int id);
+    Task<Comment> UpdateAsync(UpdateCoomentDTO updateCoomentDTO);
 }

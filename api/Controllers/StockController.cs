@@ -1,5 +1,7 @@
 using api.Data;
 using api.DTOS.Stock;
+using api.Helper;
+using api.Interfaces;
 using  api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,24 +13,25 @@ namespace api.Controllers;
 public class StockController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    public StockController(ApplicationDbContext context)
+    private readonly IStockRepository _stockRepository;
+    public StockController(ApplicationDbContext context,IStockRepository stockRepository)
     {
         _context = context;
+        _stockRepository = stockRepository;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
     {
-        var stocks = await _context.Stocks
-                                    .Select(s => s.ToStockDto())
-                                    .ToListAsync();
+        var stocks = await _stockRepository.GetAllAsync(query);
         return Ok(stocks);
     }
+
 
     [HttpGet("{id}", Name = "GetStockById")]
     public async Task<IActionResult> GetStockByIdAsync([FromRoute] int id)
     {
-        var stock = await _context.Stocks.FindAsync(id);
+        var stock = await _context.Stocks.Include(s => s.Cooments).FirstOrDefaultAsync(s => s.Id == id);
         if (stock == null)
         {
             return NotFound();

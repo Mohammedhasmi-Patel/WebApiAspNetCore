@@ -1,5 +1,6 @@
 using api.Data;
 using api.DTOS.Stock;
+using api.Helper;
 using api.Interfaces;
 using api.Model;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -37,9 +38,32 @@ public class StockRepository : IStockRepository
     }
 
 
-    public async Task<IEnumerable<Stock>> GetAllAsync()
+    public async Task<IEnumerable<Stock>> GetAllAsync(QueryObject queryObject)
     {
-         return await _context.Stocks.ToListAsync();
+        var query = _context.Stocks.AsQueryable();
+
+        if (queryObject.CompanyName != null)
+        {
+            query = query.Where(s => s.CompanyName != null && s.CompanyName.ToLower().Contains(queryObject.CompanyName.ToLower()));
+        }
+
+        if (queryObject.Symbol != null)
+        {
+            query = query.Where( s => s.Symbol!=null && s.Symbol.ToLower().Contains(queryObject.Symbol.ToLower()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
+        {
+            switch (queryObject.SortBy)
+            {
+                case "Symbol":
+                    query = queryObject.IsDescending ? query.OrderByDescending(s => s.Symbol) : query.OrderBy(s => s.Symbol);
+                    break;
+            }
+        }
+
+        int skipNumber = (queryObject.PageNumber-1) * queryObject.PageSize;
+        return await query.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
     }
 
     public async Task<Stock?> GetByIdAsync(int id)
