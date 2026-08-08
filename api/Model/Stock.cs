@@ -18,6 +18,8 @@ public class Stock
 
     public long MarketCap {get;set;}
 
-    public List<Comment> Cooments { get;set;} = [];
+    public List<Comment> Cooments { get; set; } = [];
+    public List<PortFolio> PortFolios {get;set;} = [];
+
 
 }

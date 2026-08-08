@@ -1,24 +1,15 @@
 using api.Data;
-using api.Interfaces;
-using api.Repository;
-using Microsoft.EntityFrameworkCore;
+
+using api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IStockRepository, StockRepository>();
-builder.Services.AddScoped<ICommentRepository,CommentRepository>();
+builder.Services.ConfigureProjectServices(builder.Configuration);
 
-
-string databseUrl = builder.Configuration.GetConnectionString("Default")!;
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(databseUrl));
 
 var app = builder.Build();
 
-app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
@@ -27,5 +18,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
 app.Run();
 
