@@ -1,12 +1,14 @@
 using api.DTOS.Comment;
 using api.Interfaces;
 using api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/comments")]
+[Authorize]
 public class CommentControllerController : ControllerBase
 {
     private readonly ICommentRepository _commentRepository;
@@ -60,6 +62,7 @@ public class CommentControllerController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> UpdateAsync(UpdateCoomentDTO updateCoomentDTO)
     {
+        
         var response = await _commentRepository.UpdateAsync(updateCoomentDTO);
         if (response is null)
         {

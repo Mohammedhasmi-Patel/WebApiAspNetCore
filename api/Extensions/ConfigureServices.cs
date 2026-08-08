@@ -1,6 +1,7 @@
 using System.Text;
 using api.Configuration;
 using api.Data;
+using api.Filters;
 using api.Interfaces;
 using api.Model;
 using api.Repository;
@@ -19,7 +20,10 @@ public static class ConfigureServices
 {
     public static IServiceCollection ConfigureProjectServices(this IServiceCollection service, IConfiguration configuration)
     {
-        service.AddControllers();
+        service.AddControllers(options =>
+        {
+            options.Filters.Add<ApiResponseFilter>();
+        });
 
         service.AddEndpointsApiExplorer();
         service.AddSwaggerGen(options =>
@@ -63,6 +67,7 @@ public static class ConfigureServices
 
             });
         });
+        
 
 
         service.AddIdentity<AppUser, IdentityRole>()
@@ -90,6 +95,17 @@ public static class ConfigureServices
                 ValidAudience = jwtConfiguration.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration.SecretKey))
             };
+        });
+
+        service.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontendApp", policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+            });
         });
 
         return service;

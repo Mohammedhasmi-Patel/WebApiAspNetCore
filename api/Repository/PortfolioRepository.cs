@@ -13,6 +13,15 @@ public class PortfolioRepository : IPortfolioRepository
     {
         _context = context;
     }
+
+    public async Task<PortFolio> AddPortFolioAsync(PortFolio portFolio)
+    {
+        await _context.PortFolios.AddAsync(portFolio);
+        await _context.SaveChangesAsync();
+        return portFolio;
+    }
+
+
     public  Task<List<Stock>> GetUserPortfolio(AppUser appUser)
     {
         return  _context.PortFolios.Where(u => u.AppUserId == appUser.Id)
