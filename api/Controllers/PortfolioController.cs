@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using api.Interfaces;
 using api.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/portfolios")]
+[Authorize]
 public class PortfolioControllerController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
@@ -20,13 +22,12 @@ public class PortfolioControllerController : ControllerBase
         _portfolioRepository = portfolioRepository;
     }
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetUserPortfolio()
     {
         try
         {
-             var email = User.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
-        if (email is null)
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email is null)
         {
             return Unauthorized("Unauthorized");
         }

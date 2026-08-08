@@ -11,6 +11,7 @@ namespace api.Controllers;
 
 [Route("api/stocks")]
 [ApiController]
+[Authorize]
 public class StockController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -22,7 +23,6 @@ public class StockController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
     {
         var stocks = await _stockRepository.GetAllAsync(query);
