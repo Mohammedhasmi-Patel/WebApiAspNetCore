@@ -51,6 +51,8 @@ public static class ConfigureServices
 
 
         string databseUrl = configuration.GetConnectionString("Default")!;
+        Console.WriteLine($"[STARTUP] Database URL retrieved: {(string.IsNullOrWhiteSpace(databseUrl) ? "NO (Null or empty)" : "YES (Found)")}");
+        
         service.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
             options.UseNpgsql(databseUrl);
@@ -86,7 +88,19 @@ public static class ConfigureServices
                     .AddEntityFrameworkStores<ApplicationDbContext>()
                     .AddDefaultTokenProviders();
 
-        JwtConfiguration jwtConfiguration = configuration.GetSection("JwtConfiguration").Get<JwtConfiguration>() ?? throw new Exception("Value not found.");
+        Console.WriteLine("[STARTUP] Retrieving JWT Configuration...");
+        var jwtSection = configuration.GetSection("JwtConfiguration").Get<JwtConfiguration>();
+        if (jwtSection == null)
+        {
+            Console.WriteLine("[FATAL CRASH] JwtConfiguration is completely missing from environment variables.");
+            throw new Exception("Value not found.");
+        }
+        else
+        {
+            Console.WriteLine($"[STARTUP] JWT Config loaded. Issuer: {jwtSection.Issuer}, Audience: {jwtSection.Audience}");
+        }
+        JwtConfiguration jwtConfiguration = jwtSection;
+
 
 
         service.AddAuthentication(options =>

@@ -3,39 +3,62 @@ using api.Data;
 using api.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.ConfigureProjectServices(builder.Configuration);
-
-var app = builder.Build();
-
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrWhiteSpace(port))
+try
 {
-    app.Urls.Add($"http://*:{port}");
-}
+    Console.WriteLine("[STARTUP] Application starting up...");
+    var builder = WebApplication.CreateBuilder(args);
+    
+    Console.WriteLine("[STARTUP] Configuring project services...");
+    builder.Services.ConfigureProjectServices(builder.Configuration);
+    
+    Console.WriteLine("[STARTUP] Building application...");
+    var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+    var port = Environment.GetEnvironmentVariable("PORT");
+    if (!string.IsNullOrWhiteSpace(port))
+    {
+        Console.WriteLine($"[STARTUP] Binding to PORT: {port}");
+        app.Urls.Add($"http://*:{port}");
+    }
+    else
+    {
+        Console.WriteLine("[STARTUP] No PORT environment variable found, using default port.");
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    Console.WriteLine("[STARTUP] Creating service scope for migrations...");
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Console.WriteLine("[STARTUP] Attempting to apply database migrations...");
+        await context.Database.MigrateAsync();
+        Console.WriteLine("[STARTUP] Database migrations successfully applied.");
+    }
+
+    app.UseHttpsRedirection();
+    app.UseCors("AllowFrontendApp");
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    Console.WriteLine("[STARTUP] Starting the web server...");
+    app.Run();
+}
+catch (Exception ex)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    Console.WriteLine("=================================");
+    Console.WriteLine($"[FATAL CRASH] Error: {ex.Message}");
+    Console.WriteLine($"[FATAL CRASH] StackTrace: {ex.StackTrace}");
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"[FATAL CRASH] Inner Exception: {ex.InnerException.Message}");
+    }
+    Console.WriteLine("=================================");
+    throw;
 }
-
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
-
-}
-
-app.UseHttpsRedirection();
-
-app.UseCors("AllowFrontendApp");
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-
-app.Run();
 
