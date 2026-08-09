@@ -8,6 +8,12 @@ builder.Services.ConfigureProjectServices(builder.Configuration);
 
 var app = builder.Build();
 
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    app.Urls.Add($"http://*:{port}");
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

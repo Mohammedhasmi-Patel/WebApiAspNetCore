@@ -1,0 +1,18 @@
+# Build Stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY ["api/api.csproj", "api/"]
+RUN dotnet restore "api/api.csproj"
+COPY . .
+WORKDIR "/src/api"
+RUN dotnet build "api.csproj" -c Release -o /app/build
+RUN dotnet publish "api.csproj" -c Release -o /app/publish
+
+# Final Stage
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# The PORT environment variable is automatically injected by Vercel
+# Our Program.cs is configured to read this variable and listen on it.
+ENTRYPOINT ["dotnet", "api.dll"]
