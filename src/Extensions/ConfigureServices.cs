@@ -127,7 +127,7 @@ public static class ConfigureServices
         {
             options.AddPolicy("AllowFrontendApp", policy =>
             {
-                policy.WithOrigins("http://localhost:3000")
+                policy.WithOrigins("http://localhost:3000","https://finance-project-l-user-side.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials();
