@@ -6,12 +6,15 @@ using Microsoft.EntityFrameworkCore;
 try
 {
     Console.WriteLine("[STARTUP] Application starting up...");
+    Console.Out.Flush();
     var builder = WebApplication.CreateBuilder(args);
     
     Console.WriteLine("[STARTUP] Configuring project services...");
+    Console.Out.Flush();
     builder.Services.ConfigureProjectServices(builder.Configuration);
     
     Console.WriteLine("[STARTUP] Building application...");
+    Console.Out.Flush();
     var app = builder.Build();
 
     var port = Environment.GetEnvironmentVariable("PORT");

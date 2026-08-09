@@ -25,6 +25,10 @@ ENV DOTNET_EnableDiagnostics=0
 # in minimal Linux container environments.
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
+# Disable inotify file watchers which can crash serverless containers when they try to monitor appsettings.json
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ENV DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+
 # The PORT environment variable is automatically injected by Vercel
 # Our Program.cs is configured to read this variable and listen on it.
 ENTRYPOINT ["dotnet", "api.dll"]
