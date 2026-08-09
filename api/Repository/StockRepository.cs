@@ -49,7 +49,7 @@ public class StockRepository : IStockRepository
 
         if (queryObject.Symbol != null)
         {
-            query = query.Where( s => s.Symbol!=null && s.Symbol.ToLower().Contains(queryObject.Symbol.ToLower()));
+            query = query.Where(s => s.Symbol != null && s.Symbol.ToLower().Contains(queryObject.Symbol.ToLower()));
         }
 
         if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
@@ -62,7 +62,7 @@ public class StockRepository : IStockRepository
             }
         }
 
-        int skipNumber = (queryObject.PageNumber-1) * queryObject.PageSize;
+        int skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
         return await query.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
     }
 
@@ -71,6 +71,9 @@ public class StockRepository : IStockRepository
         var result = await _context.Stocks.FindAsync(id);
         return result;
     }
+
+    
+
 
     public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockRequestDto)
     {
@@ -91,4 +94,16 @@ public class StockRepository : IStockRepository
         await _context.SaveChangesAsync();
         return existingStock;
     }
+
+    public async Task<Stock?> UpdateTotalQuantityAsync(int id, int quantity)
+    {
+        var stock = await this.GetByIdAsync(id);
+        if (stock != null)
+        {
+            stock.TotalQuantity -= quantity;
+            await _context.SaveChangesAsync();
+        }
+        return stock;
+    }
+
 }

@@ -4,5 +4,5 @@ namespace api.Interfaces;
 
 public interface ITokenService
 {
-    public string CreateJwtTokenService(AppUser appUser);
+    public Task<string> CreateJwtTokenService(AppUser appUser);
 }

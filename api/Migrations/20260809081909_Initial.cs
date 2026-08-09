@@ -59,6 +59,7 @@ namespace api.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Symbol = table.Column<string>(type: "text", nullable: false),
                     CompanyName = table.Column<string>(type: "text", nullable: false),
+                    TotalQuantity = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     Purchase = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     LastDiv = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     Industry = table.Column<string>(type: "text", nullable: false),
@@ -184,11 +185,18 @@ namespace api.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    StockId = table.Column<int>(type: "integer", nullable: true)
+                    StockId = table.Column<int>(type: "integer", nullable: true),
+                    AppUserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Comments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comments_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Comments_Stocks_StockId",
                         column: x => x.StockId,
@@ -201,7 +209,8 @@ namespace api.Migrations
                 columns: table => new
                 {
                     AppUserId = table.Column<string>(type: "text", nullable: false),
-                    StockId = table.Column<int>(type: "integer", nullable: false)
+                    StockId = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<decimal>(type: "numeric(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -256,6 +265,11 @@ namespace api.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_AppUserId",
+                table: "Comments",
+                column: "AppUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_StockId",

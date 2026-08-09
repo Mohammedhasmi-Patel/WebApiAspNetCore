@@ -8,7 +8,7 @@ namespace api.Seeders.Data;
 
 public static class AppUserSeeder
 {
-    public static async Task SeedAsync(UserManager<AppUser> userManager,CancellationToken cancellationToken)
+    public static async Task SeedAsync(UserManager<AppUser> userManager, CancellationToken cancellationToken)
     {
         if (await userManager.Users.AnyAsync())
             return;
@@ -51,5 +51,6 @@ public static class AppUserSeeder
                 );
             }
         }
+
     }
 }

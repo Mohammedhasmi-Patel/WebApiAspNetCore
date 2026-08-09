@@ -21,7 +21,7 @@ public class PortfolioControllerController : ControllerBase
     private readonly IStockRepository _stockRepository;
 
 
-    public PortfolioControllerController(UserManager<AppUser> userManager,IPortfolioRepository portfolioRepository,IStockRepository stockRepository)
+    public PortfolioControllerController(UserManager<AppUser> userManager, IPortfolioRepository portfolioRepository, IStockRepository stockRepository)
     {
         _userManager = userManager;
         _portfolioRepository = portfolioRepository;
@@ -34,15 +34,15 @@ public class PortfolioControllerController : ControllerBase
         {
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (email is null)
-        {
-            return Unauthorized("Unauthorized");
-        }
+            {
+                return Unauthorized("Unauthorized");
+            }
 
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user is null)
-        {
-            return Unauthorized("Invalid token");
-        }
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+            {
+                return Unauthorized("Invalid token");
+            }
 
             var response = await _portfolioRepository.GetUserPortfolio(user);
             return Ok(response);
@@ -70,20 +70,54 @@ public class PortfolioControllerController : ControllerBase
             {
                 return BadRequest("Stock not found.");
             }
+            if (stock.TotalQuantity < addStockPortfolioRequestDTO.Quantity)
+            {
+                return BadRequest("Not enough stock available!");
+            }
 
-            var portfolioModal = addStockPortfolioRequestDTO.ToPortfolio(user.Id);
-            var res = await _portfolioRepository.AddPortFolioAsync(portfolioModal);
+            var existingStock = await _portfolioRepository.GetByStockId(addStockPortfolioRequestDTO.StockId, user.Id);
+            if (existingStock is not null)
+            {
+                existingStock.Quantity += addStockPortfolioRequestDTO.Quantity;
+                await _portfolioRepository.UpdateAsync(existingStock, addStockPortfolioRequestDTO);
+            }
+            else
+            {
+                var portfolioModal = addStockPortfolioRequestDTO.ToPortfolio(user.Id);
+                var res = await _portfolioRepository.AddPortFolioAsync(portfolioModal);
+            }
+
+
+            await _stockRepository.UpdateTotalQuantityAsync(addStockPortfolioRequestDTO.StockId, addStockPortfolioRequestDTO.Quantity);
             return Ok(new
             {
-                StockId = res.StockId,
-                UserId = res.AppUserId
+                StockId = addStockPortfolioRequestDTO.StockId,
+                UserId = user.Id
             });
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return BadRequest(ex.Message);
         }
     }
 
+    [HttpGet("my-portfolio")]
+    public async Task<IActionResult> GetStockByUserIdAsync()
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+        {
+            return Unauthorized("invalid token");
+        }
 
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            return Unauthorized("User not found");
+        }
+
+        var stocks = await _portfolioRepository.GetUserPortfolio(user.Id);
+        return Ok(stocks.Select(s => s.ToUserPortfolioStockDto()));
+    }
 }

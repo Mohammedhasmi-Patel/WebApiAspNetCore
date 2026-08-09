@@ -56,9 +56,10 @@ public class AccountControllerController : ControllerBase
                 {
                     var userResponse = new RegisterUserResponse()
                     {
+                        UserId = applicationUser.Id,
                         Username = applicationUser.UserName,
                         Email = applicationUser.Email,
-                        Token = _tokenService.CreateJwtTokenService(applicationUser)
+                        Token = await _tokenService.CreateJwtTokenService(applicationUser)
                     };
                     return Ok(userResponse);
                 }
@@ -99,7 +100,7 @@ public class AccountControllerController : ControllerBase
                 return Unauthorized("Invalid Credentials");
             }
 
-            var isPasswordMatch = await _signInManager.CheckPasswordSignInAsync(existingUser, loginUserRequestDTO.Password,false);
+            var isPasswordMatch = await _signInManager.CheckPasswordSignInAsync(existingUser, loginUserRequestDTO.Password, false);
             if (!isPasswordMatch.Succeeded)
             {
                 return Unauthorized("Invalid Credentials");
@@ -107,9 +108,10 @@ public class AccountControllerController : ControllerBase
 
             var userResponse = new RegisterUserResponse()
             {
+                UserId = existingUser.Id,
                 Username = existingUser.UserName,
                 Email = existingUser.Email,
-                Token = _tokenService.CreateJwtTokenService(existingUser)
+                Token = await _tokenService.CreateJwtTokenService(existingUser)
             };
 
             return Ok(userResponse);

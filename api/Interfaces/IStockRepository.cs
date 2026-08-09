@@ -11,4 +11,5 @@ public interface IStockRepository
     Task<Stock> CreateAsync(Stock stockModal);
     Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto stockRequestDto);
     Task<Stock?> DeleteAsync(int id);
+    Task<Stock?> UpdateTotalQuantityAsync(int id, int quantity);
 }

@@ -10,7 +10,8 @@ public static class PortfolioMapsters
         return new PortFolio()
         {
             AppUserId = userId,
-            StockId = addStockPortfolioRequestDTO.StockId
+            StockId = addStockPortfolioRequestDTO.StockId,
+            Quantity = addStockPortfolioRequestDTO.Quantity
         };
     }
     public static PortfolioResponseDTO ToPortfolioResponse(this PortFolio portFolio)

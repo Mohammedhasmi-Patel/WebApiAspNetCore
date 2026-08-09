@@ -28,6 +28,7 @@ public static class StockSeeder
         var faker = new Faker<Stock>()
                 .RuleFor(s => s.Symbol,f => f.PickRandom(symbols))
                 .RuleFor(s => s.CompanyName, f => f.Company.CompanyName())
+                .RuleFor(s => s.TotalQuantity, f => f.Finance.Amount(100, 10000))
                 .RuleFor(s => s.Purchase, f => f.Finance.Amount(10, 5000))
                 .RuleFor(s => s.LastDiv, f => f.Finance.Amount(0, 100))
                 .RuleFor(s => s.Industry, f => f.Commerce.Department())

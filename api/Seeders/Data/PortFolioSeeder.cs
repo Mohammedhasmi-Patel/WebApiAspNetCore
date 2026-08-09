@@ -22,7 +22,8 @@ public static class PortFolioSeeder
         if (stockIds.Count == 0 || userIds.Count == 0) return;
         var faker = new Faker<PortFolio>()
                     .RuleFor(p => p.AppUserId, f => f.PickRandom(userIds))
-                    .RuleFor(p => p.StockId, f => f.PickRandom(stockIds));
+                    .RuleFor(p => p.StockId, f => f.PickRandom(stockIds))
+                    .RuleFor(p => p.Quantity, f => f.Finance.Amount(1, 1000));
 
 
         var portfolios = faker.Generate(100);

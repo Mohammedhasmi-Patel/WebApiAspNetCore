@@ -41,6 +41,14 @@ public class CommentRepository : ICommentRepository
         return await _context.Comments.AsNoTracking().ToListAsync();
     }
 
+    public async Task<Comment?> GetCommentByIdAsync(int id)
+    {
+        // throw new NotImplementedException();
+        return await _context.Comments.FindAsync(id);
+
+    }
+
+
     public async Task<Comment> UpdateAsync(UpdateCoomentDTO updateCoomentDTO)
     {
         var stock = await _context.Stocks.FindAsync(updateCoomentDTO.StockId);

@@ -226,6 +226,10 @@ namespace api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
@@ -242,6 +246,8 @@ namespace api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppUserId");
+
                     b.HasIndex("StockId");
 
                     b.ToTable("Comments");
@@ -254,6 +260,9 @@ namespace api.Migrations
 
                     b.Property<int>("StockId")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("AppUserId", "StockId");
 
@@ -290,6 +299,9 @@ namespace api.Migrations
                     b.Property<string>("Symbol")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<decimal>("TotalQuantity")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -349,9 +361,17 @@ namespace api.Migrations
 
             modelBuilder.Entity("api.Model.Comment", b =>
                 {
+                    b.HasOne("api.Model.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("api.Model.Stock", "Stock")
                         .WithMany("Cooments")
                         .HasForeignKey("StockId");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Stock");
                 });

@@ -1,9 +1,13 @@
+using System.Security.Claims;
 using api.Data;
 using api.DTOS.Stock;
+using api.Enum;
 using api.Helper;
 using api.Interfaces;
-using  api.Mappers;
+using api.Mappers;
+using api.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,15 +15,16 @@ namespace api.Controllers;
 
 [Route("api/stocks")]
 [ApiController]
-[Authorize]
 public class StockController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly IStockRepository _stockRepository;
-    public StockController(ApplicationDbContext context,IStockRepository stockRepository)
+    private readonly UserManager<AppUser> _userManager;
+    public StockController(ApplicationDbContext context, IStockRepository stockRepository, UserManager<AppUser> userManager)
     {
         _context = context;
         _stockRepository = stockRepository;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -28,7 +33,6 @@ public class StockController : ControllerBase
         var stocks = await _stockRepository.GetAllAsync(query);
         return Ok(stocks);
     }
-
 
     [HttpGet("{id}", Name = "GetStockById")]
     public async Task<IActionResult> GetStockByIdAsync([FromRoute] int id)
@@ -42,8 +46,14 @@ public class StockController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+
     public async Task<IActionResult> Create([FromBody] CreateStockRequestDto request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var stockModal = request.ToStockFromCreateDto();
         await _context.Stocks.AddAsync(stockModal);
         await _context.SaveChangesAsync();
@@ -86,5 +96,4 @@ public class StockController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
-
 }

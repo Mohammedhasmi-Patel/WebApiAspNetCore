@@ -1,6 +1,7 @@
 using api.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
 
 namespace api.Filters;
 
@@ -28,18 +29,44 @@ public class ApiResponseFilter : IAsyncResultFilter
                 if (data is string errorMsg)
                 {
                     message = errorMsg;
+                    data = null;
+                }
+                else if (data is ValidationProblemDetails validationProblem)
+                {
+                    var firstError = validationProblem.Errors.FirstOrDefault();
+                    if (firstError.Value != null && firstError.Value.Length > 0)
+                    {
+                        message = firstError.Value[0];
+                    }
+                    else
+                    {
+                        message = validationProblem.Title ?? "One or more validation errors occurred.";
+                    }
+                    data = null;
                 }
                 else if (data is ProblemDetails problem)
                 {
                     message = problem.Title ?? problem.Detail ?? "An error occurred.";
+                    data = null;
                 }
-                else if (data != null)
+                else if (data is SerializableError serializableError)
                 {
-                    // Fallback for other error objects (e.g. SerializableError for model validation)
-                    message = "An error occurred.";
+                    var firstError = serializableError.FirstOrDefault();
+                    if (firstError.Value is string[] errors && errors.Length > 0)
+                    {
+                        message = errors[0];
+                    }
+                    else
+                    {
+                        message = "One or more validation errors occurred.";
+                    }
+                    data = null;
                 }
-                
-                data = null;
+                else
+                {
+                    message = "An error occurred.";
+                    data = null;
+                }
             }
 
             var apiResponse = new ApiResponse<object>(

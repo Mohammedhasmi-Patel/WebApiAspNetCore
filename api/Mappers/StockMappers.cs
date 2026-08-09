@@ -1,3 +1,4 @@
+using api.DTOS.Portfolio;
 using api.DTOS.Stock;
 using api.Model;
 
@@ -16,7 +17,7 @@ public static class StockMappers
             LastDiv = stock.LastDiv,
             Industry = stock.Industry,
             MarketCap = stock.MarketCap,
-            Comments = stock.Cooments.Select(s => s.ToCommentDto()).ToList()
+            Comments = stock.Cooments.Select(s => s.ToCommentDto(s.AppUserId)).ToList()
         };
     }
 
@@ -30,6 +31,21 @@ public static class StockMappers
             LastDiv = request.LastDiv,
             Industry = request.Industry,
             MarketCap = request.MarketCap
+        };
+    }
+
+    public static UserPortfolioStockDto ToUserPortfolioStockDto(this Stock stock)
+    {
+        return new UserPortfolioStockDto()
+        {
+            StockId = stock.Id,
+            Symbol = stock.Symbol,
+            CompanyName = stock.CompanyName,
+            Purchase = stock.Purchase,
+            LastDiv = stock.LastDiv,
+            Industry = stock.Industry,
+            MarketCap = stock.MarketCap,
+            UserQuantity = stock.PortFolios.Sum(p => p.Quantity)
         };
     }
 
