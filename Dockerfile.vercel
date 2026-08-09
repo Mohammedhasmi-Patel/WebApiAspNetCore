@@ -13,6 +13,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
+# Disable Server Garbage Collection. Vercel functions have strict memory limits.
+# Server GC attempts to allocate too much memory upfront per core, causing a SIGSEGV (Code 139) crash.
+ENV DOTNET_gcServer=0
+
 # The PORT environment variable is automatically injected by Vercel
 # Our Program.cs is configured to read this variable and listen on it.
 ENTRYPOINT ["dotnet", "api.dll"]
