@@ -1,10 +1,10 @@
 # Build Stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /src
-COPY ["api/api.csproj", "api/"]
-RUN dotnet restore "api/api.csproj"
+WORKDIR /app
+COPY ["src/api.csproj", "src/"]
+RUN dotnet restore "src/api.csproj"
 COPY . .
-WORKDIR "/src/api"
+WORKDIR "/app/src"
 RUN dotnet build "api.csproj" -c Release -o /app/build
 RUN dotnet publish "api.csproj" -c Release -o /app/publish
 
