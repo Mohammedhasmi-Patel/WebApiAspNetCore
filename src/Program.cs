@@ -54,14 +54,21 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine("=================================");
-    Console.WriteLine($"[FATAL CRASH] Error: {ex.Message}");
-    Console.WriteLine($"[FATAL CRASH] StackTrace: {ex.StackTrace}");
+    string crashLog = $"\n=================================\n" +
+                      $"[FATAL CRASH] Error: {ex.Message}\n" +
+                      $"[FATAL CRASH] StackTrace: {ex.StackTrace}\n";
+                      
     if (ex.InnerException != null)
     {
-        Console.WriteLine($"[FATAL CRASH] Inner Exception: {ex.InnerException.Message}");
+        crashLog += $"[FATAL CRASH] Inner Exception: {ex.InnerException.Message}\n";
     }
-    Console.WriteLine("=================================");
+    crashLog += "=================================";
+
+    Console.WriteLine(crashLog);
+    Console.Out.Flush();
+    
+    // Give Vercel's logging daemon 1 second to actually transmit the log before the process violently dies
+    System.Threading.Thread.Sleep(1000);
     throw;
 }
 
