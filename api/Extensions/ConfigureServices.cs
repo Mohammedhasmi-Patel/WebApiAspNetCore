@@ -55,29 +55,29 @@ public static class ConfigureServices
         {
             options.UseNpgsql(databseUrl);
 
-            // options.UseAsyncSeeding(async (context, _, cancellationToken) =>
-            // {
-            //     var dbContext = (ApplicationDbContext)context;
-            //     var userManager = dbContext.GetService<UserManager<AppUser>>();
-            //     await RoleSeeder.SeedAsync(dbContext, cancellationToken);
-            //     await AppUserSeeder.SeedAsync(userManager, cancellationToken);
-            //     await StockSeeder.SeedAsync(dbContext, cancellationToken);
-            //     await CommentSeeder.SeedAsync(dbContext, cancellationToken);
-            //     await PortFolioSeeder.SeedAsync(dbContext, cancellationToken);
-            //     await AdminUserSeeder.SeedAsync(userManager, cancellationToken);
-            // });
+            options.UseAsyncSeeding(async (context, _, cancellationToken) =>
+            {
+                var dbContext = (ApplicationDbContext)context;
+                var userManager = dbContext.GetService<UserManager<AppUser>>();
+                await RoleSeeder.SeedAsync(dbContext, cancellationToken);
+                await AppUserSeeder.SeedAsync(userManager, cancellationToken);
+                await StockSeeder.SeedAsync(dbContext, cancellationToken);
+                await CommentSeeder.SeedAsync(dbContext, cancellationToken);
+                await PortFolioSeeder.SeedAsync(dbContext, cancellationToken);
+                await AdminUserSeeder.SeedAsync(userManager, cancellationToken);
+            });
 
-            // options.UseSeeding((context, _) =>
-            // {
-            //     var dbContext = (ApplicationDbContext)context;
-            //     var userManager = dbContext.GetService<UserManager<AppUser>>();
-            //     RoleSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
-            //     AppUserSeeder.SeedAsync(userManager, CancellationToken.None).GetAwaiter().GetResult();
-            //     StockSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
-            //     CommentSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
-            //     PortFolioSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
-            //     AdminUserSeeder.SeedAsync(userManager, CancellationToken.None).GetAwaiter().GetResult();
-            // });
+            options.UseSeeding((context, _) =>
+            {
+                var dbContext = (ApplicationDbContext)context;
+                var userManager = dbContext.GetService<UserManager<AppUser>>();
+                RoleSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
+                AppUserSeeder.SeedAsync(userManager, CancellationToken.None).GetAwaiter().GetResult();
+                StockSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
+                CommentSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
+                PortFolioSeeder.SeedAsync(dbContext, CancellationToken.None).GetAwaiter().GetResult();
+                AdminUserSeeder.SeedAsync(userManager, CancellationToken.None).GetAwaiter().GetResult();
+            });
         });
 
 
