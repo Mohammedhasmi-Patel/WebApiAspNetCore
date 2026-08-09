@@ -17,6 +17,14 @@ COPY --from=build /app/publish .
 # Server GC attempts to allocate too much memory upfront per core, causing a SIGSEGV (Code 139) crash.
 ENV DOTNET_gcServer=0
 
+# Disable diagnostic ports. Serverless environments like Vercel block the named pipes/sockets 
+# that .NET tries to open for diagnostics, which can cause instant startup crashes.
+ENV DOTNET_EnableDiagnostics=0
+
+# Run in globalization invariant mode to prevent crashes related to missing ICU (language) libraries
+# in minimal Linux container environments.
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 # The PORT environment variable is automatically injected by Vercel
 # Our Program.cs is configured to read this variable and listen on it.
 ENTRYPOINT ["dotnet", "api.dll"]
