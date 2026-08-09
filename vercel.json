@@ -9,6 +9,7 @@
   ],
   "services": {
     "api-service": {
+      "root": ".",
       "entrypoint": "Dockerfile.vercel"
     }
   }
